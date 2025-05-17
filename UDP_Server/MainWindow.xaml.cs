@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Collections.Generic;
+using System.IO;
 using System.Timers;
 using Timer = System.Timers.Timer;
 
@@ -19,14 +20,11 @@ public partial class MainWindow : Window
         private const int REQUEST_LIMIT = 10;
         private const int TIMEOUT_MINUTES = 10;
         private const int TIME_WINDOW_MINUTES = 60;
-        private Timer cleanupTimer;
+        private const string LOG_FILE = "server_log.txt";
 
         public MainWindow()
         {
             InitializeComponent();
-            cleanupTimer = new Timer(60000); // Cleanup runs every 1 minute
-            cleanupTimer.Elapsed += CleanupInactiveClients;
-            cleanupTimer.Start();
         }
 
         private async void StartServer(object sender, RoutedEventArgs e)
@@ -34,18 +32,22 @@ public partial class MainWindow : Window
             server = new UdpClient(8080);
             clientEndPoint = new IPEndPoint(IPAddress.Any, 0);
             lblStatus.Text = "Server running...";
-            
+
             await Task.Run(() =>
             {
                 while (true)
                 {
                     byte[] receivedData = server.Receive(ref clientEndPoint);
                     string clientIP = clientEndPoint.Address.ToString();
-                    
+                    string request = Encoding.UTF8.GetString(receivedData);
+                    DateTime requestTime = DateTime.Now;
+
                     Dispatcher.Invoke(() =>
                     {
-                        lstRequests.Items.Add($"Request from {clientIP}");
+                        lstRequests.Items.Add($"Request from {clientIP}: {request} at {requestTime}");
                     });
+
+                    LogClientRequest(clientIP, request, requestTime);
 
                     if (!activeClients.ContainsKey(clientIP) && activeClients.Count >= MAX_CLIENTS)
                     {
@@ -55,13 +57,19 @@ public partial class MainWindow : Window
                         continue;
                     }
 
-                    activeClients[clientIP] = DateTime.Now;  // Update last activity
+                    activeClients[clientIP] = requestTime;
 
-                    string responseMessage = ProcessRequest(clientIP, Encoding.UTF8.GetString(receivedData));
+                    string responseMessage = ProcessRequest(clientIP, request);
                     byte[] responseDataFinal = Encoding.UTF8.GetBytes(responseMessage);
                     server.Send(responseDataFinal, responseDataFinal.Length, clientEndPoint);
                 }
             });
+        }
+
+        private void LogClientRequest(string clientIP, string request, DateTime requestTime)
+        {
+            string logEntry = $"{requestTime} | Client: {clientIP} | Request: {request}";
+            File.AppendAllText(LOG_FILE, logEntry + Environment.NewLine);
         }
 
         private string ProcessRequest(string clientIP, string ingredients)
@@ -77,19 +85,6 @@ public partial class MainWindow : Window
             requestLog[clientIP].Add(DateTime.Now);
 
             return FindRecipes(ingredients);
-        }
-
-        private void CleanupInactiveClients(object sender, ElapsedEventArgs e)
-        {
-            DateTime now = DateTime.Now;
-            foreach (var client in new List<string>(activeClients.Keys))
-            {
-                if ((now - activeClients[client]).TotalMinutes > TIMEOUT_MINUTES)
-                {
-                    Dispatcher.Invoke(() => lstRequests.Items.Add($"Disconnected {client} (Inactive)"));
-                    activeClients.Remove(client);
-                }
-            }
         }
 
         private string FindRecipes(string ingredients)
