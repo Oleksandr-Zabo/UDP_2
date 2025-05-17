@@ -2,7 +2,7 @@
 using System.Data;
 using System.Windows;
 
-namespace UDP_2;
+namespace UDP_Client;
 
 /// <summary>
 /// Interaction logic for App.xaml
@@ -10,4 +10,3 @@ namespace UDP_2;
 public partial class App : Application
 {
 }
-
