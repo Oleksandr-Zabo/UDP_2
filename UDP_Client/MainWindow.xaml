@@ -5,12 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UDP_Client"
         mc:Ignorable="d"
-        Title="Recipe Finder" Height="300" Width="400">
+        Title="Recipe Finder" Height="500" Width="400">
     <Grid>
         <StackPanel>
             <TextBox Name="txtIngredients" Width="300" Height="30" Margin="10"/>
             <Button Content="Search" Click="SendRequest" Width="100" Height="30" VerticalAlignment="Top" Margin="10"/>
             <ListBox Name="lstRecipes" Width="300" Height="150" VerticalAlignment="Bottom" Margin="10"/>
+            
+            <Border BorderThickness="2" BorderBrush="Black" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10,0,10">
+                <Image Name="imgRecipe" Width="150" Height="150"/>
+            </Border>
         </StackPanel>
         
     </Grid>

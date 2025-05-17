@@ -9,4 +9,8 @@
         <RootNamespace>UDP_2</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="images\" />
+    </ItemGroup>
+
 </Project>
