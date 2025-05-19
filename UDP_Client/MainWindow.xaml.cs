@@ -44,6 +44,7 @@ public partial class MainWindow : Window
                         bitmap.StreamSource = imgStream;
                         bitmap.EndInit();
                     }
+
                     imgRecipe.Source = bitmap;
                 }
             });

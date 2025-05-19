@@ -11,6 +11,7 @@
             <ListBox Name="lstRequests" Width="400" Height="200" Margin="10"/>
             <Button Content="Start Server" Click="StartServer" Width="150" Height="30" VerticalAlignment="Bottom" Margin="10"/>
             <TextBlock Name="lblStatus" Text="Server stopped" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10"/>
+         
         </StackPanel>
         
     </Grid>
